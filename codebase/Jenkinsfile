@@ -34,7 +34,38 @@ pipeline {
 	
 			}
 		}	
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                                  usernameVariable: 'DH_USER',
+                                                  passwordVariable: 'DH_TOKEN')]) {
+                    sh '''
+                        echo "$DH_TOKEN" | docker login -u "$DH_USER" --password-stdin
+                        docker push "$BACKEND_IMAGE:$IMAGE_TAG"
+                        docker push "$BACKEND_IMAGE:latest"
+                        docker push "$FRONTEND_IMAGE:$IMAGE_TAG"
+                        docker push "$FRONTEND_IMAGE:latest"
+                    '''
+                }
+            }
+        }
 
-	}
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh './codebase/k8s-deploy.sh'
+                }
+            }
+        }
+    }
 
+    post {
+        always {
+            sh '''
+                docker logout || true
+                docker image prune -f || true
+            '''
+        }
+    }
 }
+
