@@ -1,2 +1,41 @@
-# JenkinsFile for our CI CD Server
+pipeline {
+	agent any
+	
+	triggers {
+		githubPush()
+	}
+	
+	options {
+		skipDefaultCheckout(true)
+	}
 
+	environment {
+		DOCKERHUB_USER = 'amanamazing'
+		BACKEND_IMAGE = "${DOCKERHUB_USER}/qa-colours-backend"
+		FRONTEND_IMAGE = "${DOCKERHUB_USER}/qa-colours-frontend"
+		IMAGE_TAG = "${BUILD_NUMBER}"
+	}
+
+	stages {
+		stage('Checkout') {
+			steps {
+				deleteDir()
+				checkout scm
+
+			}
+		}
+		
+		stage('Build images'){
+			steps {
+				sh '''
+					docker build -t "$BACKEND_IMAGE:$IMAGE_TAG" -t "$BACKEND_IMAGE:latest" codebase/backend
+					docker build -t "$BACKEND_IMAGE:$IMAGE_TAG" -t "$FRONTEND_IMAGE:latest" codebase/frontend
+				   '''	
+	
+			}
+		}	
+
+	}
+
+
+}

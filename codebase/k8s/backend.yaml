@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: DOCKERHUB_USER/qa-colours-backend:IMAGE_TAG
+		  ports:
+			- containerPort: 5000
+		  readinessProbe:
+			httpGet:
+				path: /
+				port: 5000
+			initialDelaySeconds: 3
+			periodSeconds: 5
+		  resources:
+			requests:
+				cpu: 50m
+				memory: 64mi
+			limits:
+				memory: 128Mi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+	name: backend
+spec:
+	type: ClusterIP
+	selector:
+		app: backend
+	ports:
+		- port: 5000
+		  targetPort: 5000
