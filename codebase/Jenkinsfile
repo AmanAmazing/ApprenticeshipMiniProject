@@ -29,7 +29,7 @@ pipeline {
 			steps {
 				sh '''
 					docker build -t "$BACKEND_IMAGE:$IMAGE_TAG" -t "$BACKEND_IMAGE:latest" codebase/backend
-					docker build -t "$BACKEND_IMAGE:$IMAGE_TAG" -t "$FRONTEND_IMAGE:latest" codebase/frontend
+					docker build -t "$FRONTEND_IMAGE:$IMAGE_TAG" -t "$FRONTEND_IMAGE:latest" codebase/frontend
 				   '''	
 	
 			}
