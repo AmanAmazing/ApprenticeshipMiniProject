@@ -53,7 +53,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh './codebase/k8s-deploy.sh'
+                    sh 'bash ./codebase/k8s-deploy.sh'
                 }
             }
         }
